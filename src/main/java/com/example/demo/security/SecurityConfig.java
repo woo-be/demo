@@ -6,6 +6,9 @@ import com.example.demo.login.filter.CustomJsonUsernamePasswordAuthenticationFil
 import com.example.demo.login.handler.LoginFailureHandler;
 import com.example.demo.login.handler.LoginSuccessHandler;
 import com.example.demo.login.service.LoginService;
+import com.example.demo.oauth.handler.OAuth2LoginFailureHandler;
+import com.example.demo.oauth.handler.OAuth2LoginSuccessHandler;
+import com.example.demo.oauth.service.CustomOAuth2UserService;
 import com.example.demo.user.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
@@ -36,6 +39,9 @@ public class SecurityConfig {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -74,9 +80,14 @@ public class SecurityConfig {
         http.addFilterAfter(customJsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class);
         http.addFilterBefore(jwtAuthenticationProcessingFilter(), CustomJsonUsernamePasswordAuthenticationFilter.class);
 
-        http.formLogin(httpSecurityFormLoginConfigurer -> {httpSecurityFormLoginConfigurer
-                .loginPage("/login");
-        });
+        http.formLogin(AbstractHttpConfigurer::disable);
+
+        http.oauth2Login(oauth2 -> oauth2
+            .successHandler(oAuth2LoginSuccessHandler)
+            .failureHandler(oAuth2LoginFailureHandler)
+            .userInfoEndpoint(userInfo -> userInfo
+                .userService(customOAuth2UserService))
+        );
 
         return http.build();
     }
