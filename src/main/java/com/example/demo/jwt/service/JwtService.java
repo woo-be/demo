@@ -5,14 +5,14 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.example.demo.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -57,12 +57,12 @@ public class JwtService {
 
 
     /**
-     * AccessToken 헤더에 실어서 보내기
+     * AccessToken 바디에 실어서 보내기
      */
-    public void sendAccessToken(HttpServletResponse response, String accessToken) {
+    public void sendAccessToken(HttpServletResponse response, String accessToken) throws IOException {
         response.setStatus(HttpServletResponse.SC_OK);
 
-        response.setHeader(accessHeader, accessToken);
+        response.getWriter().write(accessToken);
         log.info("재발급된 Access Token : {}", accessToken);
     }
 
