@@ -55,6 +55,9 @@ public class CustomJsonUsernamePasswordAuthenticationFilter extends AbstractAuth
      * AbstractAuthenticationProcessingFilter(부모)의 getAuthenticationManager()로 AuthenticationManager 객체를 반환 받은 후
      * authenticate()의 파라미터로 UsernamePasswordAuthenticationToken 객체를 넣고 인증 처리
      * (여기서 AuthenticationManager 객체는 ProviderManager -> SecurityConfig에서 설정)
+     *
+     * 필터, 요청에서 email과 password를 꺼내 UsernamePasswordAuthenticationToken만들어 AuthenticationManager에게 넘겨준다.
+     *
      */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException {

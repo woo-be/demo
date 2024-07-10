@@ -2,7 +2,6 @@ package com.example.demo.user;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static com.example.demo.user.Role.USER;
