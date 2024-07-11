@@ -38,6 +38,9 @@ import java.util.Optional;
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     private static final String NO_CHECK_URL = "/login"; // "/login"으로 들어오는 요청은 Filter 작동 X
+    private static final String RESPONSE_CONTENT_TYPE_JSON = "application/json";
+    private static final String INVALID_TOKEN_RESPONSE = "{\"error\": \"Invalid token\"}";
+    private static final String MISSING_TOKEN_RESPONSE = "{\"error\": \"Missing token\"}";
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
@@ -60,17 +63,27 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
      * 그 유저 객체를 saveAuthentication()으로 인증 처리하여
      * 인증 허가 처리된 객체를 SecurityContextHolder에 담기
      * 그 후 다음 인증 필터로 진행
+     * 토큰이 유효하지 않거나 토큰이 없다면 요청에 대한 처리를 중단하고,
+     * 토큰이 유효하지 않거나 토큰이 없다는 응답을 클라이언트에게 보냄.
      */
     public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
                                                   FilterChain filterChain) throws ServletException, IOException {
         log.info("checkAccessTokenAndAuthentication() 호출");
-        jwtService.extractAccessToken(request)
-                .filter(jwtService::isTokenValid)
-                .ifPresent(accessToken -> jwtService.extractEmail(accessToken)
-                        .ifPresent(email -> userRepository.findByEmail(email)
-                                .ifPresent(this::saveAuthentication)));
+        Optional<String> tokenOptional = jwtService.extractAccessToken(request);
 
-        filterChain.doFilter(request, response);
+        if (tokenOptional.isPresent()) {
+            String token = tokenOptional.get();
+            if (jwtService.isTokenValid(token)) {
+                jwtService.extractEmail(token)
+                        .flatMap(email -> userRepository.findByEmail(email))
+                        .ifPresent(this::saveAuthentication);
+                filterChain.doFilter(request, response);
+            } else {
+                sendInvalidTokenResponse(response);
+            }
+        } else {
+            sendMissingTokenResponse(response);
+        }
     }
 
     /**
@@ -105,5 +118,23 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                         authoritiesMapper.mapAuthorities(userDetailsUser.getAuthorities()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    /**
+     * 토큰이 유효하지 않을 때 호출되는 메서드
+     */
+    private void sendInvalidTokenResponse(HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType(RESPONSE_CONTENT_TYPE_JSON);
+        response.getWriter().write(INVALID_TOKEN_RESPONSE);
+    }
+
+    /**
+     * 토큰이 없을 때 호출되는 메서드
+     */
+    private void sendMissingTokenResponse(HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType(RESPONSE_CONTENT_TYPE_JSON);
+        response.getWriter().write(MISSING_TOKEN_RESPONSE);
     }
 }
