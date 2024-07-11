@@ -16,6 +16,7 @@ import java.util.UUID;
 /**
  * 각 소셜에서 받아오는 데이터가 다르므로
  * 소셜별로 데이터를 받는 데이터를 분기 처리하는 DTO 클래스
+ * 소별 타입별 로그인 유저 정보 UserInfo 안에 사용자 정보는 attribute로 존재함.
  */
 @Getter
 public class OAuthAttributes {
@@ -70,15 +71,14 @@ public class OAuthAttributes {
 
   /**
    * of메소드로 OAuthAttributes 객체가 생성되어, 유저 정보들이 담긴 OAuth2UserInfo가 소셜 타입별로 주입된 상태
-   * OAuth2UserInfo에서 socialId(식별값), nickname, imageUrl을 가져와서 build
-   * email에는 UUID로 중복 없는 랜덤 값 생성
+   * OAuth2UserInfo에서 socialId(식별값), nickname, imageUrl, email을 가져와서 build
    * role은 GUEST로 설정
    */
   public User toEntity(SocialType socialType, OAuth2UserInfo oauth2UserInfo) {
     return User.builder()
         .socialType(socialType)
         .socialId(oauth2UserInfo.getId())
-        .email(UUID.randomUUID() + "@socialUser.com")
+        .email(oauth2UserInfo.getEmail())
         .nickname(oauth2UserInfo.getNickname())
         .imageUrl(oauth2UserInfo.getImageUrl())
         .role(Role.GUEST)

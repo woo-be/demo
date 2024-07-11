@@ -37,6 +37,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
      * DefaultOAuth2UserService의 loadUser()는 소셜 로그인 API의 사용자 정보 제공 URI로 요청을 보내서
      * 사용자 정보를 얻은 후, 이를 통해 DefaultOAuth2User 객체를 생성 후 반환한다.
      * 결과적으로, OAuth2User는 OAuth 서비스에서 가져온 유저 정보를 담고 있는 유저
+     *
+     * 각 서비스의 UserInfo의 attribute가 꽂혀있는듯?
+     * OAuth2UserRequest에는 clientRegistration, AccessToken, 등이 들어있음.
+     * clientRegistration에는 클라이언트id, 클라이언트시크릿, 인증서버 url, 스코프 등 소셜 로그인 api에 요청 할 때 필요한 정보가 들어있음.
      */
     OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
     OAuth2User oAuth2User = delegate.loadUser(userRequest);

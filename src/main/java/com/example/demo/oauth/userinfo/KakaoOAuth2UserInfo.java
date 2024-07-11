@@ -46,4 +46,9 @@ public class KakaoOAuth2UserInfo extends OAuth2UserInfo {
 
     return (String) profile.get("thumbnail_image_url");
   }
+
+  @Override
+  public String getEmail() {
+    return "";
+  }
 }
