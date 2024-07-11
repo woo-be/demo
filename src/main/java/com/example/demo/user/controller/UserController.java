@@ -1,5 +1,6 @@
 package com.example.demo.user.controller;
 
+import com.example.demo.user.UserPrincipal;
 import com.example.demo.user.dto.UserSignUpDto;
 import com.example.demo.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +32,10 @@ public class UserController {
     }
 
     @GetMapping("/test")
-    public String test(@AuthenticationPrincipal UserDetails userDetails) {
-        log.info("userDetails: {}", userDetails);
+    public String test(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+        log.info("userDetails: {}", userPrincipal);
+        log.info("email : {}" ,userPrincipal.getEmail());
+        log.info("userId: {}", userPrincipal.getUserId());
         return "test";
     }
 }

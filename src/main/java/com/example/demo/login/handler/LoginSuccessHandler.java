@@ -1,6 +1,7 @@
 package com.example.demo.login.handler;
 
 import com.example.demo.jwt.service.JwtService;
+import com.example.demo.user.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -24,7 +25,8 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
         String email = extractUsername(authentication); // 인증 정보에서 Username(email) 추출
-        String accessToken = jwtService.createAccessToken(email); // JwtService의 createAccessToken을 사용하여 AccessToken 발급
+        Long userId = extractMemberId(authentication);
+        String accessToken = jwtService.createAccessToken(email, userId); // JwtService의 createAccessToken을 사용하여 AccessToken 발급
 
         jwtService.sendAccessToken(response, accessToken); // 응답 바디에 AccessToken 실어서 응답
 
@@ -37,5 +39,10 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private String extractUsername(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return userDetails.getUsername();
+    }
+
+    private Long extractMemberId(Authentication authentication) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        return userPrincipal.getUserId();
     }
 }

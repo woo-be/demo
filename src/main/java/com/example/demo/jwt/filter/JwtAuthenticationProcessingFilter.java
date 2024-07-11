@@ -2,6 +2,7 @@ package com.example.demo.jwt.filter;
 
 import com.example.demo.jwt.service.JwtService;
 import com.example.demo.user.User;
+import com.example.demo.user.UserPrincipal;
 import com.example.demo.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -110,10 +113,11 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             password = "randomGeneratedPassword";
         }
 
-        UserDetails userDetailsUser = org.springframework.security.core.userdetails.User.builder()
-                .username(myUser.getEmail())
+        UserDetails userDetailsUser = UserPrincipal.builder()
+                .email(myUser.getEmail())
+                .userId(myUser.getId())
                 .password(password)
-                .roles(myUser.getRole().name())
+                .authorities(List.of(new SimpleGrantedAuthority(myUser.getRole().name())))
                 .build();
 
         Authentication authentication =
