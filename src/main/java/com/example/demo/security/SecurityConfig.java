@@ -33,7 +33,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 /**
  * jwt token verify -> JwtAuthenticationProcessingFilter
  * /login 외의 경로로 요청이 들어오면 해당 요청에서 JwtToken을 추출하여 검증한 후,
- * 토큰이 유효하면 통과, 아니
+ * 토큰이 유효하면 통과, 아니면 에러를 응답함.
  *
  * login verify -> CustomJsonUsernamePasswordAuthenticationFilter
  * /login으로 요청이 들어오면 요청의 email과 password를 인증하여 인증되면 JwtToken을 발급해준다.
