@@ -35,6 +35,7 @@ jobs:
 
     - name: Build with Gradle Wrapper
       run: |
+        tree
         chmod +x ./gradlew
         ./gradlew build
 
